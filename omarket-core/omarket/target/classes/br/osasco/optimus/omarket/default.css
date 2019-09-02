@@ -1,0 +1,11 @@
+.login_header {
+    -fx-font-size: 14pt;
+    -fx-graphic: url('icon/cart-64.png');
+    -fx-font-weight: bold;
+}
+
+.log_error {
+    -fx-text-fill: red;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
