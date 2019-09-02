@@ -16,20 +16,23 @@ public class App extends Application {
     public static Stage ROOT;
     public static Connection DBH;
     public static long USUARIOID = 0;
+    public static long ADMID = 0;
     public static boolean ISADM = false;
     public static boolean ISCAIXA = false;
     public static boolean ISFINANCEIRO = false;
     public static boolean ISSISTEMA = false;
 
-    private final String dbuser = "omarket";
-    private final String dbpass = "";
-    private final String dbname = "o_market";
-    private final String driver = "mariadb";
-    private final String dbhost = "localhost";
-    private final int dbport = 3306;
+    private static final String dbuser = "omarket";
+    private static final String dbpass = "";
+    private static final String dbname = "o_market";
+    private static final String driver = "mariadb";
+    private static final String dbhost = "localhost";
+    private static final int dbport = 3306;
     
     public static void main(String[] args) {
-        launch(args);
+        if (dbConnect()) {
+            launch(args);
+        }
     }
 
     @Override
@@ -38,13 +41,14 @@ public class App extends Application {
         Parent root = FXMLLoader.load(this.getClass().getResource("mainframe.fxml"));
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        if (dbConnect()) {
-            showLogin();
-            stage.show();
+        showLogin();
+        if (USUARIOID == 0 && ADMID == 0) {
+            System.exit(0);
         }
+        stage.show();
     }
 
-    private boolean dbConnect() {
+    private static boolean dbConnect() {
         String url = String.format("jdbc:%s://%s:%d/%s", driver, dbhost, dbport, dbname);
         try {
             DBH = DriverManager.getConnection(url, dbuser, dbpass);
