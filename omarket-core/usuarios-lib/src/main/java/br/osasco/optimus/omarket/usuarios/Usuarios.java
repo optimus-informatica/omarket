@@ -1,12 +1,12 @@
 package br.osasco.optimus.omarket.usuarios;
 
+import br.osasco.optimus.omarket.optimus.Results;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Usuarios {
     private final Connection dbh;
@@ -14,18 +14,62 @@ public class Usuarios {
     public Usuarios(Connection dbh) {
         this.dbh = dbh;
     }
+    
+    public Results add(String nome, String usuario, String senha) throws SQLException {
+        return add(nome, usuario, senha, true, false, false);
+    }
+    
+    public Results add(String nome, String usuario, String senha, boolean caixa, boolean financeiro, boolean sistema) throws SQLException {
+        if (exists(usuario)) {
+            return new Results(true, "Usuário já registrado.");
+        }
+        
+        String sql = "insert into usuarios (nome, usuario, senha, is_caixa, is_financeiro, is_system) values (?, ?, crypt(?, gen_salt('bf')), ?, ?, ?)";
+        PreparedStatement stmt = dbh.prepareStatement(sql);
+        stmt.setObject(1, nome);
+        stmt.setObject(2, usuario);
+        stmt.setObject(3, senha);
+        stmt.setObject(4, caixa);
+        stmt.setObject(5, financeiro);
+        stmt.setObject(6, sistema);
+        
+        if (stmt.executeUpdate() < 1) {
+            return new Results(true, "Houve um erro ao tentar registrar o novo usuário.");
+        }
+        
+        return new Results(false, "");
+    }
+    
+    
+    public boolean exists(String usuario) throws SQLException {
+        String sql = "select usuario=? from usuarios";
+        PreparedStatement stmt = dbh.prepareStatement(sql);
+        stmt.setString(1, usuario);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getBoolean(1);
+        }
+        return false;
+    }
+    
+    
 
-    public ObservableList<Object> logon(String usuario, String senha) throws SQLException {
-        ObservableList<Object> adm = admLogon(usuario, senha);
+    public List<Object> logon(String usuario, String senha) throws SQLException {
+        List<Object> adm = admLogon(usuario, senha);
         if ((boolean)adm.get(1)) {
             return adm;
         }
         return userLogon(usuario, senha);
     }
 
-    private ObservableList<Object> userLogon(String usuario, String senha) throws SQLException {
+    private List<Object> userLogon(String usuario, String senha) throws SQLException {
         long id = 0;
-        ObservableList<Object> ret = FXCollections.observableArrayList(id, false, false, false, false);
+        List<Object> ret = new ArrayList<>();
+        ret.add(id);
+        ret.add(false);
+        ret.add(false);
+        ret.add(false);
+        ret.add(false);
         String sql = "select count(*), usuarioid, caixa, sistema, financeiro from usuarios inner join usuarios_perms using(usuarioid) where usuario=? and senha=password(?)";
         PreparedStatement stmt = dbh.prepareStatement(sql);
         stmt.setString(1, usuario);
@@ -44,9 +88,14 @@ public class Usuarios {
         return ret;
     }
 
-    private ObservableList<Object> admLogon(String usuario, String senha) throws SQLException {
+    private List<Object> admLogon(String usuario, String senha) throws SQLException {
         long id = 0;
-        ObservableList<Object> ret = FXCollections.observableArrayList(id, false, false, false, false);
+        List<Object> ret = new ArrayList<>();
+        ret.add(id);
+        ret.add(false);
+        ret.add(false);
+        ret.add(false);
+        ret.add(false);
         String sql = "select count(*), admid from adms where usuario=? and senha=password(?)";
         PreparedStatement stmt = dbh.prepareStatement(sql);
         stmt.setString(1, usuario);
