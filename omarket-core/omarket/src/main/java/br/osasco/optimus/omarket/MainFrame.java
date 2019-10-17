@@ -5,7 +5,6 @@
  */
 package br.osasco.optimus.omarket;
 
-import br.osasco.optimus.omarket.usuario.FrameRegister;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -13,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -21,8 +22,8 @@ import java.util.Properties;
  */
 public class MainFrame extends javax.swing.JFrame {
     private final File cnf_file = new File(System.getProperty("user.home") + "/market.properties");
-    private Connection dbh;
-    private Properties cnf;
+    private Connection dbh = null;
+    private Properties cnf = null;
 
     /**
      * Creates new form MainFrame
@@ -30,15 +31,20 @@ public class MainFrame extends javax.swing.JFrame {
     public MainFrame() {
         initComponents();
         try {
-            loadConfigs();
+            cnf = loadConfigs();
+            dbh = dbConnect();
         }
-        catch (IOException ex) {
+        catch (IOException | SQLException ex) {
             ex.printStackTrace();
         }
     }
     
-    private void dbConnect() {
-        
+    private Connection dbConnect() throws SQLException {
+        if (cnf == null) {
+            return null;
+        }
+        String url = String.format("jdbc:%s://%s:%s/%s", cnf.getProperty("db.type"), cnf.getProperty("db.host"), cnf.getProperty("db.port"), cnf.getProperty("db.name"));
+        return DriverManager.getConnection(url, cnf.getProperty("db.user"), cnf.getProperty("db.pass"));
     }
     
     private Properties loadConfigs() throws IOException {
