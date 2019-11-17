@@ -1,0 +1,332 @@
+/*
+ * Copyright 2019 Optimus.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package br.osasco.optimus.omarket.produto;
+
+import br.osasco.optimus.omarket.produtos.Marcas;
+import br.osasco.optimus.omarket.produtos.Nomes;
+import br.osasco.optimus.omarket.produtos.Tipos;
+import java.beans.PropertyChangeEvent;
+import java.math.RoundingMode;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
+import javax.swing.JOptionPane;
+import javax.swing.text.NumberFormatter;
+
+/**
+ *
+ * @author Brasilio Thomazo
+ */
+public class FrameRegister extends javax.swing.JInternalFrame {
+    private final Connection dbh;
+    private final Nomes pNomes;
+    private final Marcas pMarcas;
+    private final Tipos pTipos;
+    private final NumberFormatter currencyFormat;
+    private final NumberFormatter percentFormat;
+
+    /**
+     * Creates new form FrameRegister
+     * @param dbh
+     */
+    public FrameRegister(Connection dbh) {
+        pNomes = new Nomes(dbh);
+        pTipos = new Tipos(dbh);
+        pMarcas = new Marcas(dbh);
+        this.dbh = dbh;
+        for (Locale l : NumberFormat.getAvailableLocales()) {
+            System.out.println(l);
+        } //pt_BR
+        
+        NumberFormat pf = DecimalFormat.getInstance();
+        pf.setMaximumFractionDigits(2);
+        pf.setMinimumFractionDigits(2);
+        pf.setRoundingMode(RoundingMode.HALF_UP);
+        
+        NumberFormat cf = NumberFormat.getCurrencyInstance(Locale.getDefault());
+        cf.setMaximumFractionDigits(2);
+        
+        
+        
+        currencyFormat = new NumberFormatter(cf);
+        currencyFormat.setMinimum(0.01);
+        currencyFormat.setAllowsInvalid(false);
+        currencyFormat.setOverwriteMode(true);
+        
+        
+        percentFormat = new NumberFormatter(pf);
+        percentFormat.setMinimum(0.01);
+        percentFormat.setAllowsInvalid(false);
+        percentFormat.setOverwriteMode(true);
+                
+        
+        initComponents();
+        fieldCusto.setValue(0.01);
+        fieldCusto.addPropertyChangeListener("value", (PropertyChangeEvent evt) -> {
+            double custo = (double) evt.getNewValue();
+            double valor = (double) fieldValor.getValue();
+            double lucro = (double) fieldLucro.getValue();
+            double nValor, nLucro;
+            if (custo > valor) {
+                nValor = custo + ((custo / 100.0) * lucro);
+                fieldValor.setValue(nValor);
+            }
+            else {
+                nLucro = ((valor - custo) / custo) * 100;
+                fieldLucro.setValue(nLucro);
+            }
+        });
+        
+        fieldValor.setValue(0.01);
+        fieldValor.addPropertyChangeListener("value", (PropertyChangeEvent evt) -> {
+            double custo = (double) fieldCusto.getValue();
+            double valor = (double) evt.getNewValue();
+            double lucro = (double) fieldLucro.getValue();
+            double nCusto, nLucro;
+            if (valor < custo) {
+                nCusto = valor - ((valor / 100.0) * lucro);
+                fieldCusto.setValue(nCusto);
+            }
+            else {
+                nLucro = ((valor - custo) / custo) * 100;
+                fieldLucro.setValue(nLucro);
+            }
+        });
+        
+        fieldLucro.setValue(20.0);
+        
+        
+        
+        
+    }
+    
+    public String[] getNomes() {
+        try {
+            return pNomes.getArray();
+        }
+        catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex, "getNomes()", JOptionPane.ERROR_MESSAGE);
+        }
+        return new String[0];
+    }
+    
+    public String[] getTipos() {
+        try {
+            return pTipos.getArray();
+        }
+        catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex, "getTipos()", JOptionPane.ERROR_MESSAGE);
+        }
+        return new String[0];
+    }
+    
+    public String[] getMarcas() {
+        try {
+            return pMarcas.getArray();
+        }
+        catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex, "getMarcas()", JOptionPane.ERROR_MESSAGE);
+        }
+        return new String[0];
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        cbNomes = new br.osasco.optimus.omarket.ACComboBox(getNomes());
+        jLabel3 = new javax.swing.JLabel();
+        cbTipos = new br.osasco.optimus.omarket.ACComboBox(getTipos());
+        jLabel4 = new javax.swing.JLabel();
+        cbMarcas = new br.osasco.optimus.omarket.ACComboBox(getMarcas());
+        jLabel5 = new javax.swing.JLabel();
+        fieldBarcode = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        fieldCusto = new javax.swing.JFormattedTextField(currencyFormat);
+        jLabel7 = new javax.swing.JLabel();
+        fieldValor = new javax.swing.JFormattedTextField(currencyFormat);
+        jLabel8 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        fieldLucro = new javax.swing.JFormattedTextField(percentFormat);
+        jLabel9 = new javax.swing.JLabel();
+        jFormattedTextField4 = new javax.swing.JFormattedTextField();
+        jLabel10 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+
+        setClosable(true);
+        setTitle("Registro de produtos");
+
+        jLabel1.setText("Registrar um novo produto");
+
+        jLabel2.setText("Produto:");
+
+        jLabel3.setText("Tipo:");
+
+        jLabel4.setText("Marca:");
+
+        jLabel5.setText("Código:");
+
+        jLabel6.setText("Custo:");
+
+        jLabel7.setText("Valor:");
+
+        jLabel8.setText("Lucro:");
+
+        jButton1.setText("Aplicar");
+
+        jLabel9.setText("Estoque:");
+
+        jFormattedTextField4.setText("1");
+
+        jLabel10.setText("Medida:");
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jButton2.setText("Salvar");
+
+        jButton3.setText("Cancelar");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cbNomes, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cbTipos, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cbMarcas, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fieldBarcode, javax.swing.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel10)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(fieldCusto, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(fieldValor, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(fieldLucro, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel9)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jFormattedTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton2)))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(cbNomes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3)
+                    .addComponent(cbTipos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4)
+                    .addComponent(cbMarcas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5)
+                    .addComponent(fieldBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(fieldCusto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7)
+                    .addComponent(fieldValor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8)
+                    .addComponent(fieldLucro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1)
+                    .addComponent(jLabel9)
+                    .addComponent(jFormattedTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton2)
+                    .addComponent(jButton3))
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> cbMarcas;
+    private javax.swing.JComboBox<String> cbNomes;
+    private javax.swing.JComboBox<String> cbTipos;
+    private javax.swing.JTextField fieldBarcode;
+    private javax.swing.JFormattedTextField fieldCusto;
+    private javax.swing.JFormattedTextField fieldLucro;
+    private javax.swing.JFormattedTextField fieldValor;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JFormattedTextField jFormattedTextField4;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    // End of variables declaration//GEN-END:variables
+}
